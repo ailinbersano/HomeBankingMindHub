@@ -2,7 +2,7 @@
 
 namespace HomeBankingMindHub.Migrations
 {
-    public partial class InitialCreate : Migration
+    public partial class InitialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

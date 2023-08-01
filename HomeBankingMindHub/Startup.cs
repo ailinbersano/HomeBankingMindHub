@@ -31,6 +31,7 @@ namespace HomeBankingMindHub
             //agregamos el contexto de la base de datos
             services.AddDbContext<HomeBankingContext>(opt => opt.UseSqlServer(Configuration.GetConnectionString("HomeBankingConexion")));
             services.AddScoped<IClientRepository,ClientRepository>();
+            services.AddScoped<IAccountRepository, AccountRepository>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

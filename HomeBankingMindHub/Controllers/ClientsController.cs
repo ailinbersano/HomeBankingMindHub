@@ -1,4 +1,5 @@
-﻿using HomeBankingMindHub.Models;
+﻿using HomeBankingMindHub.DTOs;
+using HomeBankingMindHub.Models;
 using HomeBankingMindHub.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -32,11 +33,12 @@ namespace HomeBankingMindHub.Controllers
                         Email= client.Email,
                         FirstName= client.FirstName,
                         LastName= client.LastName,
-                        Accounts=client.Accounts.Select(ac=> new AccountDTO { 
-                            Id=ac.Id,
-                            Balance=ac.Balance,
-                            CreationDate=ac.CreationDate,
-                            Number=ac.Number,
+                        Accounts = client.Accounts.Select(ac => new AccountDTO
+                        {
+                            Id = ac.Id,
+                            Balance = ac.Balance,
+                            CreationDate = ac.CreationDate,
+                            Number = ac.Number,
                         }).ToList()
                     };
                     clientsDTO.Add(newClientDTO);

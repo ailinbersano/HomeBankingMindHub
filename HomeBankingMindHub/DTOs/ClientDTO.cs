@@ -1,8 +1,7 @@
-﻿using HomeBankingMindHub.Models;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text.Json.Serialization;
 
-namespace HomeBankingMindHub.Models
+namespace HomeBankingMindHub.DTOs
 {
     public class ClientDTO
     {
