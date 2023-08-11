@@ -14,9 +14,11 @@ namespace HomeBankingMindHub.Controllers
     public class ClientsController : ControllerBase
     {
         private IClientRepository _clientRepository;
-        public ClientsController(IClientRepository clientRepository)
+        private IAccountRepository _accountRepository;
+        public ClientsController(IClientRepository clientRepository, IAccountRepository accountsRepository)
         {
             _clientRepository = clientRepository;
+            _accountRepository = accountsRepository;
         }
         [HttpGet]
         public IActionResult Get()
@@ -47,7 +49,7 @@ namespace HomeBankingMindHub.Controllers
             }
             catch(Exception ex)
             {
-                return StatusCode(500, ex.Message+"1");
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet("{id}")]
@@ -97,7 +99,7 @@ namespace HomeBankingMindHub.Controllers
             }
             catch(Exception ex)
             {
-                return StatusCode(500, ex.Message+"2");
+                return StatusCode(500, ex.Message);
             }
         }
         [HttpGet("current")]
@@ -108,14 +110,14 @@ namespace HomeBankingMindHub.Controllers
                 string email = User.FindFirst("Client") != null ? User.FindFirst("Client").Value : string.Empty;
                 if (email == string.Empty)
                 {
-                    return Forbid();
+                    return StatusCode(403,"cliente no autorizado");
                 }
 
                 Client client = _clientRepository.FindByEmail(email);
 
                 if (client == null)
                 {
-                    return Forbid();
+                    return StatusCode(403, "cliente no encontrado");
                 }
 
                 var clientDTO = new ClientDTO
@@ -166,14 +168,14 @@ namespace HomeBankingMindHub.Controllers
             {
                 //validamos datos antes
                 if (String.IsNullOrEmpty(client.Email) || String.IsNullOrEmpty(client.Password) || String.IsNullOrEmpty(client.FirstName) || String.IsNullOrEmpty(client.LastName))
-                    return StatusCode(403, "datos inválidos");
+                    return StatusCode(403, "datos invalidos");
 
                 //buscamos si ya existe el usuario
                 Client user = _clientRepository.FindByEmail(client.Email);
 
                 if (user != null)
                 {
-                    return StatusCode(403, "Email está en uso");
+                    return StatusCode(403, "Email esta en uso");
                 }
 
                 Client newClient = new Client
@@ -185,8 +187,33 @@ namespace HomeBankingMindHub.Controllers
                 };
 
                 _clientRepository.Save(newClient);
-                return Created("", newClient);
 
+                Random random = new Random();
+                string numeroAleatorio = random.Next(100000,999999).ToString("D8");
+                Account newAccount = new Account
+                {
+                    Number = "VIN-" + numeroAleatorio,
+                    CreationDate = DateTime.Now,
+                    Balance = 0,
+                    ClientId = newClient.Id
+                };
+                _accountRepository.Save(newAccount);
+
+                var newClientDTO = new ClientDTO
+                {
+                    Id = newClient.Id,
+                    Email = newClient.Email,
+                    FirstName = newClient.FirstName,
+                    LastName = newClient.LastName,
+                    Accounts = newClient.Accounts.Select(acc => new AccountDTO
+                    {
+                        Id = acc.Id,
+                        Number = acc.Number,
+                        CreationDate = acc.CreationDate,
+                        Balance = acc.Balance,
+                    }).ToList()
+                };
+                return Created("", newClientDTO);
             }
             catch (Exception ex)
             {
