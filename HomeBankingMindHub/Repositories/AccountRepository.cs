@@ -22,14 +22,26 @@ namespace HomeBankingMindHub.Repositories
             return FindAll().Include(account => account.Transactions).ToList();
         }
         public void Save(Account account)
-        {
-            Create(account);
+        {  
+            if(account.Id==0)
+            {
+                Create(account);
+            }
+            else
+            {
+                Update(account);
+            }
             SaveChanges();
         }
         public IEnumerable<Account> GetAccountsByClient(long clientId)
         {
             return FindByCondition(account=>account.ClientId==clientId)
                 .Include(account =>account.Transactions).ToList();
+        }
+        public Account FindByNumber(string number)
+        {
+            return FindByCondition(acc => acc.Number.ToUpper() == number.ToUpper())
+                .Include(acc=>acc.Transactions).FirstOrDefault();
         }
     }
 }
